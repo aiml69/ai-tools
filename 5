@@ -1,0 +1,34 @@
+import pandas as pd, numpy as np
+from sklearn.preprocessing import StandardScaler
+import warnings; warnings.filterwarnings('ignore')
+
+df = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/diabetes.csv")
+
+print(df.head(), "\n", df.isnull().sum())
+df.info()
+
+zc = ['Glucose','BloodPressure','SkinThickness','Insulin','BMI']
+df[zc] = df[zc].replace(0, np.nan).apply(lambda x: x.fillna(x.median()))
+print("\nImputed:\n", df[zc].isnull().sum())
+
+df['AgeGroup'] = pd.cut(df['Age'], [20,30,40,50,60,70,80],
+                        labels=['21-30','31-40','41-50','51-60','61-70','71-80'])
+print("\nAgeGroup:\n", df['AgeGroup'].value_counts())
+
+df = pd.get_dummies(df, columns=['AgeGroup'], drop_first=True)
+df['BMI_Glucose'] = df['BMI'] * df['Glucose']
+
+cols = ['Pregnancies','Glucose','BloodPressure','SkinThickness',
+        'Insulin','BMI','DiabetesPedigreeFunction','Age','BMI_Glucose']
+
+sc = StandardScaler()
+df[cols] = sc.fit_transform(df[cols])
+print("\nScaled:\n", df[cols].describe().T)
+
+df['Obese'] = ((df['BMI'] * sc.scale_[cols.index('BMI')] + sc.mean_[cols.index('BMI')]) > 30).astype(int)
+print("\nObese:\n", df['Obese'].value_counts())
+
+X = pd.get_dummies(df.drop('Outcome', axis=1), drop_first=True).dropna().astype(float)
+y = df.loc[X.index, 'Outcome']
+
+assert X.dtypes.nunique() == 1 and X.dtypes.iloc[0] == np.float64
