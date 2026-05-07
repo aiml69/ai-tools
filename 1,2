@@ -7,29 +7,18 @@ import string
 
 
 def tokenize_and_count_frequency(text):
-
     words = word_tokenize(text)
-
-   
     words = [word.lower() for word in words if word.isalpha()]
 
-   
     stop_words = set(stopwords.words('english'))
     words = [word for word in words if word not in stop_words]
 
-   
     frequency_dist = FreqDist(words)
-
     return frequency_dist
 
 if __name__ == "__main__":
-   
     sample_text = "This is a sample text. It is used for testing the NLTK word frequency counting functionality."
-
-    
     word_freq = tokenize_and_count_frequency(sample_text)
-
-   
     print("Word frequencies:")
     for word, frequency in word_freq.items():
         print(f"{word}: {frequency}")
