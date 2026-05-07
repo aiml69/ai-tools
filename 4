@@ -1,0 +1,43 @@
+import pandas as pd, matplotlib.pyplot as plt, seaborn as sns, plotly.express as px
+
+df = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/diabetes.csv")
+
+print(df.head(10))
+print(f"\nDataset: {df.shape}")
+print(df.columns.tolist())
+
+df.info()
+print(df.describe().T)
+
+print("\nMissing:\n", df.isnull().sum())
+print("\nDuplicates:", df.duplicated().sum())
+
+df.hist(figsize=(20,20))
+plt.show()
+
+if 'Outcome' in df:
+    print("\nOutcome:\n", df['Outcome'].value_counts())
+    sns.countplot(x=df['Outcome'])
+    plt.title('Target Class Distribution')
+    plt.show()
+
+corr = df.corr(numeric_only=True)
+px.imshow(corr, title='Correlation Matrix').show()
+
+sns.heatmap(corr, annot=True, fmt='.2f', cmap='coolwarm')
+plt.show()
+
+pairs = [
+    ('Pregnancies','Glucose'), ('Glucose','Insulin'),
+    ('BMI','Age'), ('BloodPressure','BMI'),
+    ('SkinThickness','Insulin'), ('DiabetesPedigreeFunction','Age')
+]
+
+plt.figure(figsize=(18,15))
+for i, (x, y) in enumerate(pairs, 1):
+    plt.subplot(3,2,i)
+    sns.scatterplot(data=df, x=x, y=y, hue='Outcome', alpha=0.7)
+
+plt.tight_layout()
+plt.show()
+
